@@ -104,8 +104,8 @@
     <div v-else-if="buttonClicked && error === 4">
         <p>Sorry, we don't have data for this name!</p>
     </div>
-    <div v-else-if="ageData && country==='BE'">
-        <p>{{ ageData.name }} is 30 years old in {{ countries[country] }}!</p>
+    <div v-else-if="ageData && ageData.name ==='Daniel' && country==='BE'">
+        <p>Daniel is 30 years old in Belgium! Daniel is indeed young!</p>
     </div>
     <div v-else-if="ageData && country">
         <p>{{ ageData.name }} is {{ ageData.age }} years old in {{ countries[country] }}!</p>
