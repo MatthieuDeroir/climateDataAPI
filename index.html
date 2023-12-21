@@ -1,13 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+    <title>Age Prediction</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <h1>Age Prediction with Agify</h1>
+    <input v-model="name" placeholder="Enter a name">
+    <button @click="fetchAge">Predict Age</button>
+    <div v-if="ageData">
+        <p>{{ ageData.name }} vous avez{{ ageData.age }} ans !</p>
+    </div>
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            name: '',
+            ageData: null
+        },
+        methods: {
+            async fetchAge() {
+                try {
+                    const response = await fetch(`https://api.agify.io/?name=${this.name}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch age data');
+                    }
+                    this.ageData = await response.json();
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        },
+        mounted() {
+            this.fetchAge(); // Fetch age data for default name on load
+        }
+    });
+</script>
+</body>
 </html>
