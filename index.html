@@ -54,6 +54,7 @@
         input:focus, button:focus {
             outline: none;
         }
+
         select {
             padding: 10px;
             margin: 10px 0;
@@ -80,20 +81,9 @@
     <input v-model="name" placeholder="Enter your name">
     <select v-model="country">
         <option value="">Select Country</option>
-        <!-- Add more countries as needed -->
-        <option value="US">United States</option>
-        <option value="GB">United Kingdom</option>
-        <option value="FR">France</option>
-        <option value="DE">Germany</option>
-        <option value="ES">Spain</option>
-        <option value="IT">Italy</option>
-        <option value="CA">Canada</option>
-        <option value="AU">Australia</option>
-        <option value="BR">Brazil</option>
-        <option value="IN">India</option>
-        <option value="JP">Japan</option>
-        <option value="MA">Maroc</option>
-        <option value="PL">Pologne</option>
+        <option v-for="(name, code) in countries" :value="code" :key="code">
+            {{ name }}
+        </option>
     </select>
     <button @click="fetchAge">Predict Age</button>
 
@@ -110,7 +100,7 @@
         <p>Sorry, we don't have data for this name!</p>
     </div>
     <div v-else-if="ageData && buttonClicked">
-        <p>{{ ageData.name }} is {{ ageData.age }} years old!</p>
+        <p>{{ ageData.name }} is {{ ageData.age }} years old in {{ countries[country] }}!</p>
     </div>
 
     <script>
@@ -121,7 +111,24 @@
                 country: '',
                 ageData: null,
                 buttonClicked: false,
-                error: 0
+                error: 0,
+                chartData: null,
+                countries: {
+                    'US': 'United States',
+                    'GB': 'United Kingdom',
+                    'FR': 'France',
+                    'DE': 'Germany',
+                    'ES': 'Spain',
+                    'IT': 'Italy',
+                    'CA': 'Canada',
+                    'AU': 'Australia',
+                    'BR': 'Brazil',
+                    'IN': 'India',
+                    'JP': 'Japan',
+                    'MA': 'Maroc',
+                    'PL': 'Pologne',
+                },
+
             },
             methods: {
                 containsNumber(myString) {
