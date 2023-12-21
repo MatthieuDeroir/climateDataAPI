@@ -125,160 +125,162 @@
             <tr v-for="data in chartData" :key="data.country">
                 <td>{{ data.country }}</td>
                 <td>{{ data.age }}</td>
-                <td><div class="age-bar" :style="getBarStyle(data.age)"></div></td>
+                <td>
+                    <div class="age-bar" :style="getBarStyle(data.age)"></div>
+                </td>
             </tr>
             </tbody>
         </table>
     </div>
 
-        <script>
-            new Vue({
-                el: '#app',
-                data: {
-                    name: '',
-                    country: '',
-                    ageData: null,
-                    minAge: null,
-                    maxAge: null,
-                    buttonClicked: false,
-                    error: 0,
-                    chartData: null,
-                    countries: {
-                        'US': 'United States',
-                        'GB': 'United Kingdom',
-                        'FR': 'France',
-                        'DE': 'Germany',
-                        'ES': 'Spain',
-                        'IT': 'Italy',
-                        'CA': 'Canada',
-                        'AU': 'Australia',
-                        'BR': 'Brazil',
-                        'IN': 'India',
-                        'JP': 'Japan',
-                        'MA': 'Maroc',
-                        'PL': 'Pologne',
-                    },
-
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                name: '',
+                country: '',
+                ageData: null,
+                minAge: null,
+                maxAge: null,
+                buttonClicked: false,
+                error: 0,
+                chartData: null,
+                countries: {
+                    'US': 'United States',
+                    'GB': 'United Kingdom',
+                    'FR': 'France',
+                    'DE': 'Germany',
+                    'ES': 'Spain',
+                    'IT': 'Italy',
+                    'CA': 'Canada',
+                    'AU': 'Australia',
+                    'BR': 'Brazil',
+                    'IN': 'India',
+                    'JP': 'Japan',
+                    'MA': 'Maroc',
+                    'PL': 'Pologne',
                 },
-                watch: {
-                    country(newVal, oldVal) {
-                        if (newVal !== oldVal) {
-                            this.buttonClicked = false;
-                            this.ageData = null;
-                            this.error = 0;
-                        }
-                    },
-                    chartData() {
-                        this.calculateAgeRange();
-                    }
-                },
-                methods: {
-                    containsNumber(myString) {
 
-                        return /\d/.test(myString);
-                    },
-                    hasError(name) {
-                        if (!name || name === '') {
-                            this.error = 1;
-                            return 1;
-                        } else if (this.name.length < 3) {
-                            this.error = 2;
-                            return 2;
-                        } else if (this.containsNumber(this.name)) {
-                            this.error = 3;
-                            return 3;
-                        }
+            },
+            watch: {
+                country(newVal, oldVal) {
+                    if (newVal !== oldVal) {
+                        this.buttonClicked = false;
+                        this.ageData = null;
                         this.error = 0;
-                        return 0;
-                    },
-                    async fetchAge() {
-                        this.buttonClicked = true;
-                        if (this.hasError(this.name)) {
-                            return;
-                        }
-
-                        try {
-                            let url = `https://api.agify.io/?name=${this.name}`;
-                            if (this.country) {
-                                url += `&country_id=${this.country}`;
-                            }
-                            const response = await fetch(url);
-                            if (!response.ok) {
-                                throw new Error('Failed to fetch age data');
-                            }
-                            this.ageData = await response.json();
-                            if (this.ageData.age === null) {
-                                this.error = 4;
-                                this.ageData.age = 'unknown';
-                            }
-                        } catch (error) {
-                            console.error(error);
-                        }
-                    },
-                    fetchForAllCountries() {
-                        const promises = [];
-                        for (const code in this.countries) {
-                            const url = `https://api.agify.io/?name=${this.name}&country_id=${code}`;
-                            promises.push(fetch(url));
-                        }
-                        Promise.all(promises)
-                            .then(responses => {
-                                const promises2 = [];
-                                for (const response of responses) {
-                                    promises2.push(response.json());
-                                }
-                                return Promise.all(promises2);
-                            })
-                            .then(data => {
-                                this.chartData = data.map(d => {
-                                    return {
-                                        country: this.countries[d.country_id],
-                                        age: d.age
-                                    };
-                                });
-                                console.log(this.chartData);
-                            })
-                            .catch(error => {
-                                console.error(error);
-                            });
-                    },
-                    calculateAgeRange() {
-                        if (this.chartData && this.chartData.length) {
-                            this.minAge = Math.min(...this.chartData.map(d => d.age));
-                            this.maxAge = Math.max(...this.chartData.map(d => d.age));
-                        }
-                    },
-
-                    getBarStyle(age) {
-                        const color = this.getGradientColor(age, this.minAge, this.maxAge);
-                        const width = this.calculateWidth(age, this.minAge, this.maxAge);
-                        return {
-                            background: color,
-                            width: `${width}px`,
-                            display: 'inline-block', // ensures that the div behaves like a bar
-                        };
-                    },
-
-                    calculateWidth(age, min, max) {
-                        const minWidth = 35; // minimum width in pixels
-                        const maxWidth = 350; // maximum width in pixels
-                        const percent = (age - min) / (max - min);
-                        return minWidth + (maxWidth - minWidth) * percent;
-                    },
-
-
-                    getGradientColor(value, min, max) {
-                        const percent = (value - min) / (max - min);
-                        const r = percent * 255;
-                        const g = (1 - percent) * 255;
-                        const b = 0;
-                        return `rgb(${r}, ${g}, ${b})`;
                     }
                 },
-                mounted() {
-                    console.log('Mounted');
+                chartData() {
+                    this.calculateAgeRange();
                 }
-            });
-        </script>
+            },
+            methods: {
+                containsNumber(myString) {
+
+                    return /\d/.test(myString);
+                },
+                hasError(name) {
+                    if (!name || name === '') {
+                        this.error = 1;
+                        return 1;
+                    } else if (this.name.length < 3) {
+                        this.error = 2;
+                        return 2;
+                    } else if (this.containsNumber(this.name)) {
+                        this.error = 3;
+                        return 3;
+                    }
+                    this.error = 0;
+                    return 0;
+                },
+                async fetchAge() {
+                    this.buttonClicked = true;
+                    if (this.hasError(this.name)) {
+                        return;
+                    }
+
+                    try {
+                        let url = `https://api.agify.io/?name=${this.name}`;
+                        if (this.country) {
+                            url += `&country_id=${this.country}`;
+                        }
+                        const response = await fetch(url);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch age data');
+                        }
+                        this.ageData = await response.json();
+                        if (this.ageData.age === null) {
+                            this.error = 4;
+                            this.ageData.age = 'unknown';
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
+                },
+                fetchForAllCountries() {
+                    const promises = [];
+                    for (const code in this.countries) {
+                        const url = `https://api.agify.io/?name=${this.name}&country_id=${code}`;
+                        promises.push(fetch(url));
+                    }
+                    Promise.all(promises)
+                        .then(responses => {
+                            const promises2 = [];
+                            for (const response of responses) {
+                                promises2.push(response.json());
+                            }
+                            return Promise.all(promises2);
+                        })
+                        .then(data => {
+                            this.chartData = data.map(d => {
+                                return {
+                                    country: this.countries[d.country_id],
+                                    age: d.age
+                                };
+                            });
+                            console.log(this.chartData);
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                },
+                calculateAgeRange() {
+                    if (this.chartData && this.chartData.length) {
+                        this.minAge = Math.min(...this.chartData.map(d => d.age));
+                        this.maxAge = Math.max(...this.chartData.map(d => d.age));
+                    }
+                },
+
+                getBarStyle(age) {
+                    const color = this.getGradientColor(age, this.minAge, this.maxAge);
+                    const width = this.calculateWidth(age, this.minAge, this.maxAge);
+                    return {
+                        background: color,
+                        width: `${width}px`,
+                        display: 'inline-block', // ensures that the div behaves like a bar
+                    };
+                },
+
+                calculateWidth(age, min, max) {
+                    const minWidth = 35; // minimum width in pixels
+                    const maxWidth = 350; // maximum width in pixels
+                    const percent = (age - min) / (max - min);
+                    return minWidth + (maxWidth - minWidth) * percent;
+                },
+
+
+                getGradientColor(value, min, max) {
+                    const percent = (value - min) / (max - min);
+                    const r = percent * 255;
+                    const g = (1 - percent) * 255;
+                    const b = 0;
+                    return `rgb(${r}, ${g}, ${b})`;
+                }
+            },
+            mounted() {
+                console.log('Mounted');
+            }
+        });
+    </script>
 </body>
 </html>
